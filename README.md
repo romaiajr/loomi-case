@@ -52,7 +52,6 @@ If you prefer to run the project manually, follow these steps:
    DATABASE_NAME=loomerce
    DATABASE_HOST=localhost
    DATABASE_USER=postgres
-   DATABASE_TYPE=postgres
    DATABASE_PWD=default
    DATABASE_PORT=5432
    ```
@@ -90,7 +89,6 @@ The project uses the following environment variables for configuration:
 | `DATABASE_NAME`  | Name of the PostgreSQL database          | `loomerce`  |
 | `DATABASE_HOST`  | Host of the PostgreSQL database          | `localhost`           |
 | `DATABASE_USER`  | Username for the PostgreSQL database     | `postgres`            |
-| `DATABASE_TYPE`  | Type of the database                     | `postgres`            |
 | `DATABASE_PWD`   | Password for the PostgreSQL database     | `postgres`             |
 | `DATABASE_PORT`  | Port of the PostgreSQL database          | `5432`                |
 
