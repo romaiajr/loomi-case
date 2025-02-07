@@ -29,10 +29,11 @@ export class User extends DefaultEntity {
   @DeleteDateColumn({ nullable: true })
   inactivated_at!: Date;
 
-  @Column({ default: false })
+  @Column({ default: true })
   is_active!: boolean;
 
   @OneToOne(() => Client, (client) => client.user, {
+    nullable: true,
     cascade: true,
   })
   client?: Client;

@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import entities from 'src/entities';
+import { UsersModule } from './clients/users.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import entities from 'src/entities';
         entities: entities,
       }),
     }),
+    UsersModule,
   ],
 })
 export class AppModule {
