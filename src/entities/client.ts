@@ -1,10 +1,4 @@
-import {
-  Entity,
-  Column,
-  DeleteDateColumn,
-  OneToOne,
-  JoinColumn,
-} from 'typeorm';
+import { Entity, Column, OneToOne, JoinColumn } from 'typeorm';
 import { DefaultEntity } from './default-entity';
 import { User } from './user';
 
@@ -15,12 +9,6 @@ export class Client extends DefaultEntity {
 
   @Column()
   address!: string;
-
-  @DeleteDateColumn({ nullable: true })
-  inactivated_at!: Date;
-
-  @Column({ default: false })
-  is_active!: boolean;
 
   @OneToOne(() => User, (user) => user.client, { nullable: false })
   @JoinColumn({ name: 'user_id' })

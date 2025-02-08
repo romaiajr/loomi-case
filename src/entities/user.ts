@@ -7,7 +7,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { DefaultEntity } from './default-entity';
-import { UserType } from 'src/enums/user-type';
+import { UserType } from '@enums/user-type';
 import { Client } from './client';
 import { Order } from './order';
 
@@ -29,10 +29,11 @@ export class User extends DefaultEntity {
   @DeleteDateColumn({ nullable: true })
   inactivated_at!: Date;
 
-  @Column({ default: false })
+  @Column({ default: true })
   is_active!: boolean;
 
   @OneToOne(() => Client, (client) => client.user, {
+    nullable: true,
     cascade: true,
   })
   client?: Client;
