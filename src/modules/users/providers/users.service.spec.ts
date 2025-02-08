@@ -7,12 +7,11 @@ import { Repository, DataSource } from 'typeorm';
 import { PasswordsService } from './password.service';
 import { CreateUserDTO } from '../model/request/create-user.dto';
 import { UserType } from '@enums/user-type';
-import { EmailConflictError } from '../error/email-conflict';
 import { UserDTO } from '../model/response/user.dto';
 import { ClientDTO } from '../model/response/client.dto';
-import { UserNotFoundError } from '../error/user-not-found';
 import { UpdateUserDTO } from '../model/request/update-user.dto';
 import { UserPaginationResponse } from '../model/response/user-pagination';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 const mockUserRepository = {
   findOne: jest.fn(),
@@ -145,7 +144,9 @@ describe('UsersService', () => {
         .fn()
         .mockResolvedValue({ ...userDto, id: '456' });
 
-      await expect(service.create(userDto)).rejects.toThrow(EmailConflictError);
+      await expect(service.create(userDto)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
@@ -336,7 +337,7 @@ describe('UsersService', () => {
     it('deve lançar erro ao buscar um usuário inexistente', async () => {
       userRepository.findOne = jest.fn().mockResolvedValue(null);
 
-      await expect(service.findOne('999')).rejects.toThrow(UserNotFoundError);
+      await expect(service.findOne('999')).rejects.toThrow(NotFoundException);
     });
   });
 

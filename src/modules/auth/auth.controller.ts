@@ -12,12 +12,12 @@ export class AuthController {
   @ApiResponse({ type: LoginMessage })
   @Post('login')
   async login(@Body() body: LoginDTO) {
-    return this.authService.login(body.email, body.password);
+    return this.authService.login(body);
   }
 
   @ApiResponse({ type: JwtToken })
   @Post('code')
   async verifyCode(@Body() body: { email: string; code: string }) {
-    return this.authService.verifyCode(body.email, body.code);
+    return this.authService.verifyCode(body);
   }
 }

@@ -11,6 +11,8 @@ import { Repository } from 'typeorm';
 import { PasswordsService } from '../users/providers/password.service';
 import { JwtToken } from './model/response/jwt-token';
 import { AuthCode } from '@entities/auth-code';
+import { LoginDTO } from './model/request/login.dto';
+import { VerifyCodeDTO } from './model/request/verify-code.dto';
 
 @Injectable()
 export class AuthService {
@@ -27,8 +29,11 @@ export class AuthService {
     return Math.floor(100000 + Math.random() * 900000).toString(); // Código de 6 dígitos
   }
 
-  async login(email: string, password: string): Promise<{ message: string }> {
-    const user = await this.userRepository.findOne({ where: { email } });
+  async login(auth: LoginDTO): Promise<{ message: string }> {
+    const { email, password } = auth;
+    const user = await this.userRepository.findOne({
+      where: { email: email },
+    });
 
     if (!user) {
       throw new NotAcceptableException('Credenciais inválidas.');
@@ -44,14 +49,15 @@ export class AuthService {
     }
 
     const code = this.generateAuthCode();
-    await this.authCodeRepository.save({ email, code });
+    await this.authCodeRepository.save({ email: email, code });
     // O ideal seria utilizar um sistema de envio de e-mails, mas neste caso optei por simular a validação apenas.
     return {
-      message: `Código de verificação enviado. Não me pergunte o código, já te disse ${code} vezes que não sei. `,
+      message: `Código de verificação enviado. Não me pergunte o código, já te disse ${code} vezes que não sei.`,
     };
   }
 
-  async verifyCode(email: string, code: string): Promise<JwtToken> {
+  async verifyCode(auth: VerifyCodeDTO): Promise<JwtToken> {
+    const { email, code } = auth;
     const authCode = await this.authCodeRepository.findOne({
       where: { email, code },
     });
