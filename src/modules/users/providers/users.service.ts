@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Client } from '@entities/client';
 import { User } from '@entities/user';
@@ -8,8 +12,6 @@ import { CreateUserDTO } from '../model/request/create-user.dto';
 import { UserDTO } from '../model/response/user.dto';
 import { UserType } from '@enums/user-type';
 import { ClientDTO } from '../model/response/client.dto';
-import { EmailConflictError } from '../error/email-conflict';
-import { UserNotFoundError } from '../error/user-not-found';
 import { UpdateUserDTO } from '../model/request/update-user.dto';
 import { runInTransaction } from '@common/utils/run-in-transaction';
 import { UserPaginationResponse } from '../model/response/user-pagination';
@@ -51,7 +53,7 @@ export class UsersService {
     });
 
     if (existentUser) {
-      throw new EmailConflictError();
+      throw new BadRequestException('Email já cadastrado');
     }
   }
 
@@ -113,7 +115,7 @@ export class UsersService {
       relations: ['client'],
     });
     if (!user) {
-      throw new UserNotFoundError();
+      throw new NotFoundException('Usuário não encontrado');
     }
     return user;
   }

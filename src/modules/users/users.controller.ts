@@ -17,8 +17,6 @@ import { UserDTO } from './model/response/user.dto';
 import { CreateUserDTO } from './model/request/create-user.dto';
 import { Response } from 'express';
 import { ClientDTO } from './model/response/client.dto';
-import { EmailConflictError } from './error/email-conflict';
-import { UserNotFoundError } from './error/user-not-found';
 import { UpdateUserDTO } from './model/request/update-user.dto';
 import { UserPaginationResponse } from './model/response/user-pagination';
 
@@ -30,18 +28,9 @@ export class UsersController {
   @ApiResponse({ type: UserDTO || ClientDTO })
   @Post()
   async create(@Body() createUserData: CreateUserDTO, @Res() res: Response) {
-    try {
-      const user: UserDTO | ClientDTO =
-        await this.usersService.create(createUserData);
-      return res.status(HttpStatus.CREATED).send(user);
-    } catch (e: any) {
-      if (e instanceof EmailConflictError) {
-        return res.status(HttpStatus.CONFLICT).send({
-          status: HttpStatus.CONFLICT,
-          message: e.message,
-        });
-      }
-    }
+    const user: UserDTO | ClientDTO =
+      await this.usersService.create(createUserData);
+    return res.status(HttpStatus.CREATED).send(user);
   }
 
   @ApiResponse({ type: UserPaginationResponse })
@@ -66,18 +55,9 @@ export class UsersController {
     @Req() req: Request,
     @Param() params: { id: string },
   ) {
-    try {
-      const userId = params.id;
-      const user: UserDTO | ClientDTO = await this.usersService.findOne(userId);
-      return res.status(HttpStatus.OK).send(user);
-    } catch (e) {
-      if (e instanceof UserNotFoundError) {
-        return res.status(HttpStatus.NOT_FOUND).send({
-          status: HttpStatus.NOT_FOUND,
-          message: e.message,
-        });
-      }
-    }
+    const userId = params.id;
+    const user: UserDTO | ClientDTO = await this.usersService.findOne(userId);
+    return res.status(HttpStatus.OK).send(user);
   }
 
   @ApiResponse({ type: UserDTO })
@@ -89,21 +69,12 @@ export class UsersController {
     @Req() req: Request,
     @Param() params: { id: string },
   ) {
-    try {
-      const userId: string = params.id;
-      const updatedUser: UserDTO | ClientDTO = await this.usersService.update(
-        userId,
-        updateUserData,
-      );
-      return res.status(HttpStatus.OK).send(updatedUser);
-    } catch (e: any) {
-      if (e instanceof EmailConflictError) {
-        return res.status(HttpStatus.CONFLICT).send({
-          status: HttpStatus.CONFLICT,
-          message: e.message,
-        });
-      }
-    }
+    const userId: string = params.id;
+    const updatedUser: UserDTO | ClientDTO = await this.usersService.update(
+      userId,
+      updateUserData,
+    );
+    return res.status(HttpStatus.OK).send(updatedUser);
   }
 
   @ApiResponse({ type: UserDTO })
