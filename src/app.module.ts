@@ -5,7 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import entities from 'src/entities';
-import { UsersModule } from './clients/users.module';
+import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [

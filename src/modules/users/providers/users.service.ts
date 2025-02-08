@@ -11,6 +11,8 @@ import { ClientDTO } from '../model/response/client.dto';
 import { EmailConflictError } from '../error/email-conflict';
 import { UserNotFoundError } from '../error/user-not-found';
 import { UpdateUserDTO } from '../model/request/update-user.dto';
+import { runInTransaction } from 'src/common/utils/run-in-transaction';
+import { UserPaginationResponse } from '../model/response/user-pagination';
 
 @Injectable()
 export class UsersService {
@@ -53,45 +55,38 @@ export class UsersService {
   }
 
   async create(user: CreateUserDTO): Promise<UserDTO | ClientDTO> {
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-    try {
+    return runInTransaction(this.dataSource, async (manager) => {
       await this.validateEmail(user.email);
       user.password = await this.passwordService.hashPassword(user.password);
-      const createdUser = queryRunner.manager.create(User, user);
-      const savedUser = await queryRunner.manager.save(User, createdUser);
+      const createdUser = manager.create(User, user);
+      const savedUser = await manager.save(User, createdUser);
       if (user.type === UserType.CLIENT) {
         const clientData: { address?: string; contact?: string } = {
           address: user.address,
           contact: user.contact,
         };
-        const createdClient = queryRunner.manager.create(Client, {
+        const createdClient = manager.create(Client, {
           user: createdUser,
           ...clientData,
         });
-        const savedClient = await queryRunner.manager.save(
-          Client,
-          createdClient,
-        );
+        const savedClient = await manager.save(Client, createdClient);
         savedUser.client = savedClient;
       }
-
-      await queryRunner.commitTransaction();
       return this.toDTO(savedUser);
-    } catch (error) {
-      await queryRunner.rollbackTransaction();
-      throw error;
-    } finally {
-      await queryRunner.release();
-    }
+    });
   }
 
-  async findAll(): Promise<{
-    clients: ClientDTO[];
-    admins: UserDTO[];
-  }> {
-    const users = await this.usersRepository.find({ relations: ['client'] });
+  async findAll(
+    page: number,
+    records: number,
+  ): Promise<UserPaginationResponse> {
+    const skip: number = page ? (page - 1) * records : 0;
+    const take: number = records ? records : 10;
+    const users = await this.usersRepository.find({
+      relations: ['client'],
+      skip,
+      take,
+    });
     const clients: ClientDTO[] = [];
     const admins: UserDTO[] = [];
 
@@ -100,9 +95,16 @@ export class UsersService {
         clients.push(this.toDTO(user) as ClientDTO);
       } else admins.push(this.toDTO(user) as UserDTO);
     });
+    const totalCount = await this.usersRepository.count();
     return {
-      clients,
-      admins,
+      items: {
+        clients,
+        admins,
+      },
+      total: totalCount,
+      page: page,
+      records: records,
+      lastElement: records * page >= totalCount,
     };
   }
 
@@ -135,14 +137,16 @@ export class UsersService {
     userId: string,
     updateData: UpdateUserDTO,
   ): Promise<UserDTO | ClientDTO> {
-    await this.validateEmail(updateData.email);
-    const user = await this.findOneUser(userId);
-    Object.assign(user, updateData);
-    if (user.client && ('contact' in updateData || 'address' in updateData)) {
-      Object.assign(user.client, updateData);
-      await this.clientsRepository.save(user.client);
-    }
-    await this.usersRepository.save(user);
-    return this.toDTO(user);
+    return runInTransaction(this.dataSource, async (manager) => {
+      await this.validateEmail(updateData.email);
+      const user = await this.findOneUser(userId);
+      Object.assign(user, updateData);
+      if (user.client && ('contact' in updateData || 'address' in updateData)) {
+        Object.assign(user.client, updateData);
+        await manager.save(Client, user.client);
+      }
+      await manager.save(User, user);
+      return this.toDTO(user);
+    });
   }
 }

@@ -7,6 +7,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Req,
   Res,
 } from '@nestjs/common';
@@ -19,6 +20,7 @@ import { ClientDTO } from './model/response/client.dto';
 import { EmailConflictError } from './error/email-conflict';
 import { UserNotFoundError } from './error/user-not-found';
 import { UpdateUserDTO } from './model/request/update-user.dto';
+import { UserPaginationResponse } from './model/response/user-pagination';
 
 @ApiTags('users')
 @Controller('users')
@@ -42,13 +44,17 @@ export class UsersController {
     }
   }
 
-  @ApiResponse({ type: UserDTO })
-  @Get('')
-  async findAll(@Res() res: Response) {
-    const users: {
-      clients: ClientDTO[];
-      admins: UserDTO[];
-    } = await this.usersService.findAll();
+  @ApiResponse({ type: UserPaginationResponse })
+  @Get()
+  async findAll(
+    @Res() res: Response,
+    @Query('page') page: number = 1,
+    @Query('records') records: number = 5,
+  ) {
+    const users: UserPaginationResponse = await this.usersService.findAll(
+      page,
+      records,
+    );
     return res.status(HttpStatus.OK).send(users);
   }
 
