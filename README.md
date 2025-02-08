@@ -54,6 +54,7 @@ If you prefer to run the project manually, follow these steps:
    DATABASE_USER=postgres
    DATABASE_PWD=default
    DATABASE_PORT=5432
+   JWT_SECRET=SenhaSecreta
    ```
 
 4. **Build and Populate the Database**:
@@ -91,5 +92,6 @@ The project uses the following environment variables for configuration:
 | `DATABASE_USER`  | Username for the PostgreSQL database     | `postgres`            |
 | `DATABASE_PWD`   | Password for the PostgreSQL database     | `postgres`             |
 | `DATABASE_PORT`  | Port of the PostgreSQL database          | `5432`                |
+| `JWT_SECRET`     | Jwt Key used to encrypt users sensitive Data   | `5432`                |
 
 > Note: Ensure the PostgreSQL is properly configured and that the `.env` file is in place before starting the project manually.

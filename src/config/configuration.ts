@@ -8,4 +8,5 @@ export default () => ({
     port: parseInt(process.env.DATABASE_PORT || '5432'),
     synchronize: true,
   },
+  jwtSecretKey: process.env.JWT_SECRET,
 });
