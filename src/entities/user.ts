@@ -7,7 +7,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { DefaultEntity } from './default-entity';
-import { UserType } from 'src/enums/user-type';
+import { UserType } from '@enums/user-type';
 import { Client } from './client';
 import { Order } from './order';
 

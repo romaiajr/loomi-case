@@ -1,17 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Client } from 'src/entities/client';
-import { User } from 'src/entities/user';
-import { DataSource, Repository } from 'typeorm';
+import { Client } from '@entities/client';
+import { User } from '@entities/user';
+import { DataSource, Not, Repository } from 'typeorm';
 import { PasswordsService } from './password.service';
 import { CreateUserDTO } from '../model/request/create-user.dto';
 import { UserDTO } from '../model/response/user.dto';
-import { UserType } from 'src/enums/user-type';
+import { UserType } from '@enums/user-type';
 import { ClientDTO } from '../model/response/client.dto';
 import { EmailConflictError } from '../error/email-conflict';
 import { UserNotFoundError } from '../error/user-not-found';
 import { UpdateUserDTO } from '../model/request/update-user.dto';
-import { runInTransaction } from 'src/common/utils/run-in-transaction';
+import { runInTransaction } from '@common/utils/run-in-transaction';
 import { UserPaginationResponse } from '../model/response/user-pagination';
 
 @Injectable()
@@ -19,8 +19,6 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-    @InjectRepository(Client)
-    private clientsRepository: Repository<Client>,
     private readonly passwordService: PasswordsService,
     private dataSource: DataSource,
   ) {}
@@ -43,13 +41,16 @@ export class UsersService {
     return userDto;
   }
 
-  async validateEmail(email: string) {
-    if (
-      await this.usersRepository.findOne({
-        where: { email },
-        cache: false,
-      })
-    ) {
+  async validateEmail(email: string, id?: string) {
+    const where = id ? { id: Not(id), email } : { email };
+
+    const existentUser = await this.usersRepository.findOne({
+      withDeleted: true,
+      where,
+      cache: false,
+    });
+
+    if (existentUser) {
       throw new EmailConflictError();
     }
   }
@@ -96,16 +97,14 @@ export class UsersService {
       } else admins.push(this.toDTO(user) as UserDTO);
     });
     const totalCount = await this.usersRepository.count();
-    return {
-      items: {
-        clients,
-        admins,
-      },
-      total: totalCount,
-      page: page,
-      records: records,
-      lastElement: records * page >= totalCount,
-    };
+
+    return new UserPaginationResponse(
+      { clients, admins },
+      page,
+      records,
+      totalCount,
+      records * page >= totalCount,
+    );
   }
 
   async findOneUser(id: string, where?: object): Promise<User> {
@@ -138,7 +137,7 @@ export class UsersService {
     updateData: UpdateUserDTO,
   ): Promise<UserDTO | ClientDTO> {
     return runInTransaction(this.dataSource, async (manager) => {
-      await this.validateEmail(updateData.email);
+      await this.validateEmail(updateData.email, userId);
       const user = await this.findOneUser(userId);
       Object.assign(user, updateData);
       if (user.client && ('contact' in updateData || 'address' in updateData)) {

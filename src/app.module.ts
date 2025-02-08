@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import configuration from './config/configuration';
+import configuration from '@config/configuration';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
-import entities from 'src/entities';
+import entities from '@entities/index';
 import { UsersModule } from './modules/users/users.module';
 
 @Module({

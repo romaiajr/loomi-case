@@ -82,6 +82,12 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "@common/(.*)": "<rootDir>/common/$1",
+      "@config/(.*)": "<rootDir>/config/$1",
+      "@entities/(.*)": "<rootDir>/entities/$1",
+      "@enums/(.*)": "<rootDir>/enums/$1"
+    }
   }
 }

@@ -1,9 +1,9 @@
 import { Entity, Column, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { DefaultEntity } from './default-entity';
-import { OrderStatus } from 'src/enums/order-status';
+import { OrderStatus } from '@enums/order-status';
 import { User } from './user';
 import { OrderItem } from './order-item';
-import { PaymentStatus } from 'src/enums/payment-status';
+import { PaymentStatus } from '@enums/payment-status';
 
 @Entity('orders')
 export class Order extends DefaultEntity {

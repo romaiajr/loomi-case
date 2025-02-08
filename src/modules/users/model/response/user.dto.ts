@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { UserType } from 'src/enums/user-type';
+import { UserType } from '@enums/user-type';
 
 export class UserDTO {
   @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174000' })

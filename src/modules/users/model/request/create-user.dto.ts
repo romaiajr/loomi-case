@@ -8,7 +8,7 @@ import {
   ValidateIf,
   Matches,
 } from 'class-validator';
-import { UserType } from 'src/enums/user-type';
+import { UserType } from '@enums/user-type';
 
 export class CreateUserDTO {
   @ApiProperty()
