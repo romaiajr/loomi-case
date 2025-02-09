@@ -6,10 +6,14 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import entities from '@entities/index';
 import { UsersModule } from './modules/users/users.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { RolesGuard } from '@guards/role.guard';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
+      isGlobal: true,
       load: [configuration],
     }),
     TypeOrmModule.forRootAsync({
@@ -28,6 +32,13 @@ import { UsersModule } from './modules/users/users.module';
       }),
     }),
     UsersModule,
+    AuthModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
   ],
 })
 export class AppModule {

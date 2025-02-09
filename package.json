@@ -24,6 +24,7 @@
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.0",
     "@nestjs/core": "^11.0.1",
+    "@nestjs/jwt": "^11.0.0",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/swagger": "^11.0.3",
@@ -84,10 +85,13 @@
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",
     "moduleNameMapper": {
-      "@common/(.*)": "<rootDir>/common/$1",
       "@config/(.*)": "<rootDir>/config/$1",
       "@entities/(.*)": "<rootDir>/entities/$1",
-      "@enums/(.*)": "<rootDir>/enums/$1"
+      "@enums/(.*)": "<rootDir>/common/enums/$1",
+      "@decorators/(.*)": "<rootDir>/common/decorators/$1",
+      "@guards/(.*)": "<rootDir>/common/guards/$1",
+      "@interfaces/(.*)": "<rootDir>/common/interfaces/$1",
+      "@utils/(.*)": "<rootDir>/common/utils/$1"
     }
   }
 }
