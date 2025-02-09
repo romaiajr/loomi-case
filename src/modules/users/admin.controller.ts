@@ -10,7 +10,7 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './providers/users.service';
 import { UserDTO } from './model/response/user.dto';
 import { Response } from 'express';
@@ -28,6 +28,18 @@ export class AdminsController {
   constructor(private usersService: UsersService) {}
 
   @ApiResponse({ type: UserPaginationResponse })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Número da página (default: 1)',
+  })
+  @ApiQuery({
+    name: 'records',
+    required: false,
+    type: Number,
+    description: 'Quantidade de registros por página (default: 5)',
+  })
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(UserType.ADMIN)
   @Get()

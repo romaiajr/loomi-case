@@ -19,7 +19,7 @@ import { AuthCode } from '@entities/auth-code';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('JwtSecretKey'),
-        signOptions: { expiresIn: '1h' },
+        signOptions: { expiresIn: '4h' },
       }),
     }),
     TypeOrmModule.forFeature([User, AuthCode]),

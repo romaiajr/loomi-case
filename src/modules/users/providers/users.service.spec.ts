@@ -152,7 +152,10 @@ describe('UsersService', () => {
 
   describe('update', () => {
     it('Deve atualizar um usuário comum', async () => {
-      const updateDto: UpdateUserDTO = { name: 'Novo Nome', email: '' };
+      const updateDto: UpdateUserDTO = {
+        name: 'Novo Nome',
+        email: 'test@example.com',
+      };
       const existingUser = {
         id: '123',
         name: 'Roberto',
@@ -171,7 +174,8 @@ describe('UsersService', () => {
       const result = await service.update('123', updateDto);
 
       expect(result).toBeInstanceOf(UserDTO);
-      expect(result.name).toBe('Novo Nome');
+      expect(result.name).toBe(updateDto.name);
+      expect(result.email).toBe(existingUser.email);
       expect(mockQueryRunner.manager.save).toHaveBeenCalled();
     });
 
@@ -207,6 +211,23 @@ describe('UsersService', () => {
       expect(result.contact).toBe(updateDto.contact);
       expect(result.address).toBe(updateDto.address);
       expect(mockQueryRunner.manager.save).toHaveBeenCalled();
+    });
+
+    it('Deve falhar ao atualizar um usuário caso o email seja duplicado', async () => {
+      const userDto: CreateUserDTO = {
+        name: 'Roberto Maia',
+        email: 'test@example.com',
+        password: 'password123',
+        type: UserType.ADMIN,
+      };
+
+      userRepository.findOne = jest
+        .fn()
+        .mockResolvedValue({ ...userDto, id: '456' });
+
+      await expect(service.create(userDto)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 

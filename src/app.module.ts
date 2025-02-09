@@ -9,6 +9,7 @@ import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { RolesGuard } from '@guards/role.guard';
 import { APP_GUARD } from '@nestjs/core';
+import { ProductsModule } from './modules/products/products.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { APP_GUARD } from '@nestjs/core';
     }),
     UsersModule,
     AuthModule,
+    ProductsModule,
   ],
   providers: [
     {
