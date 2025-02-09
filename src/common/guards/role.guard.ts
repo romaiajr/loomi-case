@@ -7,10 +7,10 @@ import {
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
-
 import { IS_PUBLIC_KEY } from '@decorators/public.decorator';
 import { JwtPayload } from 'src/modules/auth/model/jwt-payload';
 import { UserType } from '@enums/user-type';
+import configuration from '@config/configuration';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -41,7 +41,10 @@ export class RolesGuard implements CanActivate {
     }
 
     const token = authHeader.split(' ')[1];
-    const decoded: JwtPayload = this.jwtService.verify(token);
+
+    const decoded: JwtPayload = this.jwtService.verify(token, {
+      secret: configuration().jwtSecretKey,
+    });
     const userType: UserType = decoded.type;
 
     if (!requiredRoles.includes(userType)) {

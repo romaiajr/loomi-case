@@ -60,7 +60,7 @@ export class UsersController {
     return res.status(HttpStatus.OK).send(updatedUser);
   }
 
-  @ApiResponse({ type: UserDTO })
+  @ApiResponse({ status: HttpStatus.OK })
   @UseGuards(AuthGuard('jwt'))
   @Delete()
   async remove(@Res() res: Response, @Req() req: RequestWithUser) {

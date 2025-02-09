@@ -109,9 +109,9 @@ export class UsersService {
     );
   }
 
-  async findOneUser(id: string, where?: object): Promise<User> {
+  async findOneUser(id: string): Promise<User> {
     const user = await this.usersRepository.findOne({
-      where: { id, ...where },
+      where: { id },
       relations: ['client'],
     });
     if (!user) {
@@ -126,7 +126,7 @@ export class UsersService {
   }
 
   async remove(id: string): Promise<void> {
-    await this.findOne(id);
+    await this.findOneUser(id);
     const currentDate = new Date().toISOString();
     await this.usersRepository.update(id, {
       is_active: false,

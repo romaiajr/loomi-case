@@ -1,4 +1,4 @@
-import { Entity, Column, OneToMany } from 'typeorm';
+import { Entity, Column, OneToMany, DeleteDateColumn } from 'typeorm';
 import { DefaultEntity } from './default-entity';
 import { OrderItem } from './order-item';
 
@@ -7,7 +7,7 @@ export class Product extends DefaultEntity {
   @Column()
   name!: string;
 
-  @Column()
+  @Column({ nullable: true })
   description!: string;
 
   @Column()
@@ -15,6 +15,12 @@ export class Product extends DefaultEntity {
 
   @Column()
   stock_quantity!: number;
+
+  @DeleteDateColumn({ nullable: true })
+  inactivated_at!: Date;
+
+  @Column({ default: true })
+  is_active!: boolean;
 
   @OneToMany(() => OrderItem, (item) => item.product)
   items!: OrderItem[];
