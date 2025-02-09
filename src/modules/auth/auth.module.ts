@@ -13,17 +13,19 @@ import { AuthCode } from '@entities/auth-code';
 @Module({
   imports: [
     PassportModule,
+    ConfigModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>('jwtSecretKey'),
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('JwtSecretKey'),
+        signOptions: { expiresIn: '1h' },
       }),
     }),
     TypeOrmModule.forFeature([User, AuthCode]),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, PasswordsService, ConfigService],
-  exports: [AuthService],
+  providers: [AuthService, JwtStrategy, PasswordsService],
+  exports: [AuthService, JwtModule],
 })
 export class AuthModule {}

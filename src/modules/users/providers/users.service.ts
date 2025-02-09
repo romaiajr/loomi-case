@@ -13,7 +13,7 @@ import { UserDTO } from '../model/response/user.dto';
 import { UserType } from '@enums/user-type';
 import { ClientDTO } from '../model/response/client.dto';
 import { UpdateUserDTO } from '../model/request/update-user.dto';
-import { runInTransaction } from '@common/utils/run-in-transaction';
+import { runInTransaction } from '@utils/run-in-transaction';
 import { UserPaginationResponse } from '../model/response/user-pagination';
 
 @Injectable()

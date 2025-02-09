@@ -18,11 +18,13 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@common/*": ["src/common/*"],
       "@config/*": ["src/config/*"],
       "@entities/*": ["src/entities/*"],
-      "@enums/*": ["src/enums/*"],
-
+      "@enums/*": ["src/common/enums/*"],
+      "@decorators/*": ["src/common/decorators/*"],
+      "@guards/*": ["src/common/guards/*"],
+      "@interfaces/*": ["src/common/interfaces/*"],
+      "@utils/*": ["src/common/utils/*"]
     }
   }
 }

@@ -13,11 +13,13 @@ import { JwtToken } from './model/response/jwt-token';
 import { AuthCode } from '@entities/auth-code';
 import { LoginDTO } from './model/request/login.dto';
 import { VerifyCodeDTO } from './model/request/verify-code.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
   constructor(
     private jwtService: JwtService,
+    private configService: ConfigService,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     @InjectRepository(AuthCode)
@@ -78,7 +80,9 @@ export class AuthService {
 
     const payload = { username: user.email, sub: user.id, type: user.type };
     const jwt: JwtToken = {
-      access_token: await this.jwtService.signAsync(payload),
+      access_token: await this.jwtService.signAsync(payload, {
+        secret: this.configService.get<string>('jwtSecretKey'),
+      }),
     };
     return jwt;
   }

@@ -1,4 +1,4 @@
-import { PaginationResponse } from '@common/interfaces/pagination-response';
+import { PaginationResponse } from '@interfaces/pagination-response';
 import { UserDTO } from './user.dto';
 import { ClientDTO } from './client.dto';
 

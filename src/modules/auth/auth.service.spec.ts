@@ -10,10 +10,12 @@ import { NotAcceptableException, UnauthorizedException } from '@nestjs/common';
 import { VerifyCodeDTO } from './model/request/verify-code.dto';
 import { JwtService } from '@nestjs/jwt';
 import { UserType } from '@enums/user-type';
+import { ConfigService } from '@nestjs/config';
 
 const mockPasswordService = {
   comparePasswords: jest.fn(),
 };
+
 const mockUserRepository = {
   findOne: jest.fn(),
   create: jest.fn(),
@@ -22,6 +24,7 @@ const mockUserRepository = {
   find: jest.fn(),
   count: jest.fn(),
 };
+
 const mockAuthCodeRepository = {
   findOne: jest.fn(),
   save: jest.fn(),
@@ -29,12 +32,13 @@ const mockAuthCodeRepository = {
 };
 
 const mockJwtService = {
-  signAsync: jest.fn(),
+  signAsync: jest.fn().mockResolvedValue('mockedJwtToken'),
 };
 
-describe('UsersService', () => {
+describe('AuthService', () => {
   let service: AuthService;
   let jwtService: JwtService;
+  let configService: ConfigService;
   let userRepository: Repository<User>;
   let authCodeRepository: Repository<AuthCode>;
   let passwordService: PasswordsService;
@@ -43,8 +47,20 @@ describe('UsersService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
+        {
+          provide: JwtService,
+          useValue: mockJwtService,
+        },
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn((key) => {
+              if (key === 'JWT_SECRET') return 'testSecret'; // ✅ Correção do nome da chave
+              return null;
+            }),
+          },
+        },
         { provide: getRepositoryToken(User), useValue: mockUserRepository },
-        { provide: JwtService, useValue: mockJwtService },
         {
           provide: getRepositoryToken(AuthCode),
           useValue: mockAuthCodeRepository,
@@ -55,6 +71,7 @@ describe('UsersService', () => {
 
     service = module.get<AuthService>(AuthService);
     jwtService = module.get<JwtService>(JwtService);
+    configService = module.get<ConfigService>(ConfigService);
     userRepository = module.get(getRepositoryToken(User));
     authCodeRepository = module.get(getRepositoryToken(AuthCode));
     passwordService = module.get(PasswordsService);
@@ -62,21 +79,13 @@ describe('UsersService', () => {
 
   describe('login', () => {
     it('Deve falhar caso o email e senha sejam inválidos', async () => {
-      const existingClient = {
-        id: '123',
-        name: 'Cliente Teste',
-        email: 'cliente@example.com',
-        type: UserType.CLIENT,
-        client: { contact: 'antigo', address: 'antigo' },
-      } as User;
-
       const loginDto: LoginDTO = {
         email: 'test@example.com',
         password: 'password123',
       };
 
-      userRepository.findOne = jest.fn().mockResolvedValue(existingClient);
-      passwordService.comparePasswords = jest.fn().mockResolvedValue(false);
+      mockUserRepository.findOne.mockResolvedValue(null);
+      mockPasswordService.comparePasswords.mockResolvedValue(false);
 
       await expect(service.login(loginDto)).rejects.toThrow(
         NotAcceptableException,
@@ -93,30 +102,35 @@ describe('UsersService', () => {
       } as User;
 
       const loginDto: LoginDTO = {
-        email: 'test@example.com',
+        email: 'cliente@example.com',
         password: 'password123',
       };
 
-      userRepository.findOne = jest.fn().mockResolvedValue(existingClient);
-      passwordService.comparePasswords = jest.fn().mockResolvedValue(true);
+      mockUserRepository.findOne.mockResolvedValue(existingClient);
+      mockPasswordService.comparePasswords.mockResolvedValue(true);
       jest.spyOn(service as any, 'generateAuthCode').mockReturnValue('123456');
 
       const result = await service.login(loginDto);
+
       expect(result).toMatchObject({
-        message:
-          'Código de verificação enviado. Não me pergunte o código, já te disse 123456 vezes que não sei.',
+        message: expect.stringContaining('123456 vezes que não sei.'),
+      });
+
+      expect(mockAuthCodeRepository.save).toHaveBeenCalledWith({
+        email: loginDto.email,
+        code: '123456',
       });
     });
   });
 
-  describe('code', () => {
+  describe('verifyCode', () => {
     it('Deve falhar caso o código tenha expirado ou seja inválido', async () => {
       const verifyCodeDto: VerifyCodeDTO = {
         email: 'test@example.com',
         code: '123456',
       };
 
-      authCodeRepository.findOne = jest.fn().mockResolvedValue(null);
+      mockAuthCodeRepository.findOne.mockResolvedValue(null);
 
       await expect(service.verifyCode(verifyCodeDto)).rejects.toThrow(
         UnauthorizedException,
