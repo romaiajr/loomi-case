@@ -62,7 +62,7 @@ export class ProductsController {
       'Se verdadeiro, retorna apenas produtos disponíveis (default: true)',
   })
   @ApiQuery({
-    name: 'priceLowerThan',
+    name: 'maxPrice',
     required: false,
     type: Number,
     description: 'Filtra produtos com preço menor que o valor especificado',
@@ -80,15 +80,15 @@ export class ProductsController {
     @Res() res: Response,
     @Query('page') page: number = 1,
     @Query('records') records: number = 5,
-    @Query('onlyAvailable') onlyAvailable: boolean = true,
-    @Query('priceLowerThan') priceLowerThan?: number,
-    @Query('priceBiggetThan') priceBiggetThan?: number,
+    @Query('onlyAvailable') onlyAvailable?: boolean,
+    @Query('maxPrice') maxPrice?: number,
+    @Query('minPrice') minPrice?: number,
   ) {
     const products: ProductPaginationResponse =
       await this.productsService.findAll(page, records, {
         onlyAvailable,
-        priceLowerThan,
-        priceBiggetThan,
+        maxPrice,
+        minPrice,
       });
     return res.status(HttpStatus.OK).send(products);
   }

@@ -1,7 +1,14 @@
 import { Product } from '@entities/product';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import {
+  Between,
+  DataSource,
+  LessThanOrEqual,
+  MoreThan,
+  MoreThanOrEqual,
+  Repository,
+} from 'typeorm';
 import { NotFoundException } from '@nestjs/common';
 import { ProductsService } from './product..service';
 import { ProductDTO } from './model/response/product.dto';
@@ -161,9 +168,15 @@ describe('ProductsService', () => {
         .mockResolvedValue(products.slice(0, records));
       productRepository.count = jest.fn().mockResolvedValue(products.length);
 
-      const result = await service.findAll(page, records, {
-        onlyAvailable: true,
-      });
+      const result = await service.findAll(page, records, {});
+
+      expect(productRepository.find).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {},
+          skip: 0,
+          take: 2,
+        }),
+      );
 
       expect(result.items).toHaveLength(2);
       expect(result.total).toBe(products.length);
@@ -229,6 +242,66 @@ describe('ProductsService', () => {
       expect(result.items).toHaveLength(0);
       expect(result.total).toBe(0);
       expect(result.lastElement).toBe(true);
+    });
+
+    it('Deve aplicar o filtro onlyAvailable corretamente', async () => {
+      productRepository.find = jest.fn().mockResolvedValue([]);
+      productRepository.count = jest.fn().mockResolvedValue(0);
+
+      await service.findAll(1, 10, { onlyAvailable: true });
+
+      expect(productRepository.find).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            stock_quantity: MoreThan(0),
+          }),
+        }),
+      );
+    });
+
+    it('Deve aplicar o filtro de faixa de preço corretamente', async () => {
+      productRepository.find = jest.fn().mockResolvedValue([]);
+      productRepository.count = jest.fn().mockResolvedValue(0);
+
+      await service.findAll(1, 10, { minPrice: 100, maxPrice: 500 });
+
+      expect(productRepository.find).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            price: Between(100, 500),
+          }),
+        }),
+      );
+    });
+
+    it('Deve aplicar o filtro minPrice corretamente', async () => {
+      productRepository.find = jest.fn().mockResolvedValue([]);
+      productRepository.count = jest.fn().mockResolvedValue(0);
+
+      await service.findAll(1, 10, { minPrice: 200 });
+
+      expect(productRepository.find).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            price: MoreThanOrEqual(200),
+          }),
+        }),
+      );
+    });
+
+    it('Deve aplicar o filtro maxPrice corretamente', async () => {
+      productRepository.find = jest.fn().mockResolvedValue([]);
+      productRepository.count = jest.fn().mockResolvedValue(0);
+
+      await service.findAll(1, 10, { maxPrice: 300 });
+
+      expect(productRepository.find).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            price: LessThanOrEqual(300),
+          }),
+        }),
+      );
     });
   });
 

@@ -1,6 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import {
+  Between,
+  DataSource,
+  LessThan,
+  LessThanOrEqual,
+  MoreThan,
+  MoreThanOrEqual,
+  Repository,
+} from 'typeorm';
 import { runInTransaction } from '@utils/run-in-transaction';
 import { Product } from '@entities/product';
 import { ProductDTO } from './model/response/product.dto';
@@ -38,19 +46,28 @@ export class ProductsService {
     page: number,
     records: number,
     filters: {
-      onlyAvailable: boolean;
-      priceLowerThan?: number;
-      priceBiggetThan?: number;
+      onlyAvailable?: boolean;
+      maxPrice?: number;
+      minPrice?: number;
     },
   ): Promise<ProductPaginationResponse> {
-    // TODO - Faltando lidar com os filtros
+    const where: any = {};
+    const { onlyAvailable, minPrice, maxPrice } = filters;
 
+    if (onlyAvailable) {
+      where.stock_quantity = MoreThan(0);
+    }
+
+    if (minPrice !== undefined && maxPrice !== undefined) {
+      where.price = Between(minPrice, maxPrice);
+    } else if (minPrice !== undefined) {
+      where.price = MoreThanOrEqual(minPrice);
+    } else if (maxPrice !== undefined) {
+      where.price = LessThanOrEqual(maxPrice);
+    }
     const skip: number = page ? (page - 1) * records : 0;
     const take: number = records ? records : 10;
-    const products = await this.productsRepository.find({
-      skip,
-      take,
-    });
+    const products = await this.productsRepository.find({ where, skip, take });
 
     const totalCount = await this.productsRepository.count();
 
