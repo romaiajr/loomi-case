@@ -1,4 +1,11 @@
-import { Entity, Column, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import {
+  Entity,
+  Column,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  DeleteDateColumn,
+} from 'typeorm';
 import { DefaultEntity } from './default-entity';
 import { OrderStatus } from '@enums/order-status';
 import { User } from './user';
@@ -22,4 +29,10 @@ export class Order extends DefaultEntity {
 
   @OneToMany(() => OrderItem, (item) => item.order)
   items!: OrderItem[];
+
+  @DeleteDateColumn({ nullable: true })
+  inactivated_at!: Date;
+
+  @Column({ default: true })
+  is_active!: boolean;
 }

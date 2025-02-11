@@ -3,4 +3,5 @@ export enum OrderStatus {
   PROCESSING,
   DISPATCHED,
   DELIVERED,
+  CANCELED,
 }
