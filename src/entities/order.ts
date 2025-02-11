@@ -20,6 +20,6 @@ export class Order extends DefaultEntity {
   @JoinColumn({ name: 'user_id' })
   user!: User;
 
-  @OneToMany(() => OrderItem, (item) => item.product)
+  @OneToMany(() => OrderItem, (item) => item.order)
   items!: OrderItem[];
 }

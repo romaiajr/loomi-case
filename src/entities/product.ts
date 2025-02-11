@@ -24,4 +24,12 @@ export class Product extends DefaultEntity {
 
   @OneToMany(() => OrderItem, (item) => item.product)
   items!: OrderItem[];
+
+  increaseStock(quantity: number): void {
+    this.stock_quantity += quantity;
+  }
+
+  decreaseStock(quantity: number): void {
+    this.stock_quantity -= quantity;
+  }
 }

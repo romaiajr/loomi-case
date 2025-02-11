@@ -10,6 +10,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { RolesGuard } from '@guards/role.guard';
 import { APP_GUARD } from '@nestjs/core';
 import { ProductsModule } from './modules/products/products.module';
+import { CartModule } from './modules/cart/cart.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { ProductsModule } from './modules/products/products.module';
     UsersModule,
     AuthModule,
     ProductsModule,
+    CartModule,
   ],
   providers: [
     {
