@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
@@ -13,6 +14,8 @@ import { Cart } from '@entities/cart';
 import { OrderItem } from '@entities/order-item';
 import { OrderPaginationResponse } from './model/response/order-pagination';
 import { OrderStatus } from '@enums/order-status';
+import { CreateOrderPayment } from './model/request/create-order-payment';
+import { PaymentStatus } from '@enums/payment-status';
 
 @Injectable()
 export class OrderService {
@@ -194,5 +197,34 @@ export class OrderService {
       const canceledOrder = await manager.save(Order, order);
       return this.toDTO(canceledOrder);
     });
+  }
+
+  async payOrder(
+    userId: string,
+    payment: CreateOrderPayment,
+  ): Promise<OrderDTO> {
+    const order = await this.ordersRepository.findOne({
+      where: {
+        id: payment.order_id,
+        user: {
+          id: userId,
+        },
+      },
+    });
+    if (!order) {
+      throw new NotFoundException('Pedido não encontrado');
+    }
+    const paymentRNG = Math.floor(Math.random() * 2);
+    if (paymentRNG) {
+      order.order_status = OrderStatus.PROCESSING;
+      order.payment_status = PaymentStatus.APPROVED;
+    } else {
+      order.payment_status = PaymentStatus.DENIED;
+    }
+    const savedOrder = await this.ordersRepository.save(order);
+    if (savedOrder.payment_status === PaymentStatus.DENIED) {
+      throw new UnprocessableEntityException(savedOrder);
+    }
+    return this.toDTO(savedOrder);
   }
 }
