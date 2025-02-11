@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
@@ -20,6 +21,7 @@ import { RequestWithUser } from '@interfaces/request-with-user';
 import { OrderDTO } from './model/response/order.dto';
 import { OrderPaginationResponse } from './model/response/order-pagination';
 import { OrderService } from './order.service';
+import { CreateOrderPayment } from './model/request/create-order-payment';
 
 @ApiTags('order')
 @Controller('order')
@@ -95,5 +97,19 @@ export class OrderController {
     const userId: string = req.user.sub;
     const canceledOrder = await this.orderService.cancelOrder(userId, orderId);
     return res.status(HttpStatus.OK).send(canceledOrder);
+  }
+
+  @ApiResponse({ type: OrderDTO })
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(UserType.ADMIN, UserType.CLIENT)
+  @Post('/payment')
+  async payOrder(
+    @Res() res: Response,
+    @Req() req: RequestWithUser,
+    @Body() payment: CreateOrderPayment,
+  ) {
+    const userId: string = req.user.sub;
+    const paymentResponse = await this.orderService.payOrder(userId, payment);
+    return res.status(HttpStatus.OK).send(paymentResponse);
   }
 }

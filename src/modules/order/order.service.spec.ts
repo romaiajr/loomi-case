@@ -4,9 +4,14 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Cart } from '@entities/cart';
 import { Order } from '@entities/order';
 import { Product } from '@entities/product';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { OrderStatus } from '@enums/order-status';
 import { OrderService } from './order.service';
+import { PaymentStatus } from '@enums/payment-status';
 
 describe('OrderService', () => {
   let service: OrderService;
@@ -96,12 +101,15 @@ describe('OrderService', () => {
 
       const mockOrder = {
         id: 'order1',
-        items: [mockOrderItem],
+        items: [],
         order_status: OrderStatus.PROCESSING,
       };
       cartsRepository.findOne = jest.fn().mockResolvedValue(mockCart);
       productsRepository.findOne = jest.fn().mockResolvedValue(mockProduct);
-      mockQueryRunner.manager.save = jest.fn().mockResolvedValue(mockOrder);
+      mockQueryRunner.manager.save = jest
+        .fn()
+        .mockResolvedValueOnce(mockOrder)
+        .mockResolvedValue(mockOrderItem);
 
       const result = await service.createOrder('user1');
 
@@ -264,6 +272,81 @@ describe('OrderService', () => {
       await expect(service.cancelOrder('user1', 'order1')).rejects.toThrow(
         NotFoundException,
       );
+    });
+  });
+
+  describe('payOrder', () => {
+    it('Deve aprovar o pagamento e atualizar o status do pedido', async () => {
+      const mockOrder = {
+        id: 'order1',
+        user: { id: 'user1' },
+        order_status: OrderStatus.RECEIVED,
+        payment_status: null,
+        items: [],
+      };
+
+      const mockUpdatedOrder = {
+        ...mockOrder,
+        order_status: OrderStatus.PROCESSING,
+        payment_status: PaymentStatus.APPROVED,
+      };
+
+      ordersRepository.findOne = jest.fn().mockResolvedValue(mockOrder);
+      ordersRepository.save = jest.fn().mockResolvedValue(mockUpdatedOrder);
+      jest.spyOn(global.Math, 'random').mockReturnValue(0.7);
+
+      const result = await service.payOrder('user1', {
+        order_id: 'order1',
+        payment_info: {
+          name: 'John Doe',
+          card_number: '1234123412341234',
+          expiration_date: {
+            month: 12,
+            year: 2028,
+          },
+          cvv: '123',
+        },
+      });
+
+      expect(result).toBeDefined();
+      expect(result.payment_status).toBe(PaymentStatus.APPROVED);
+      expect(result.order_status).toBe(OrderStatus.PROCESSING);
+      expect(ordersRepository.save).toHaveBeenCalledWith(mockUpdatedOrder);
+    });
+
+    it('Deve recusar o pagamento e lançar erro UnprocessableEntityException', async () => {
+      const mockOrder = {
+        id: 'order1',
+        user: { id: 'user1' },
+        order_status: OrderStatus.RECEIVED,
+        payment_status: null,
+      };
+
+      const mockUpdatedOrder = {
+        ...mockOrder,
+        payment_status: PaymentStatus.DENIED,
+      };
+
+      ordersRepository.findOne = jest.fn().mockResolvedValue(mockOrder);
+      ordersRepository.save = jest.fn().mockResolvedValue(mockUpdatedOrder);
+      jest.spyOn(global.Math, 'random').mockReturnValue(0.2);
+
+      await expect(
+        service.payOrder('user1', {
+          order_id: 'order1',
+          payment_info: {
+            name: 'John Doe',
+            card_number: '1234123412341234',
+            expiration_date: {
+              month: 12,
+              year: 2028,
+            },
+            cvv: '123',
+          },
+        }),
+      ).rejects.toThrow(UnprocessableEntityException);
+
+      expect(ordersRepository.save).toHaveBeenCalledWith(mockUpdatedOrder);
     });
   });
 });
