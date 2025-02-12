@@ -10,7 +10,7 @@ export class Report extends DefaultEntity {
   start_date!: Date;
 
   @Column()
-  end_state!: Date;
+  end_date!: Date;
 
   @Column()
   amount: number;

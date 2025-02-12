@@ -12,6 +12,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { ProductsModule } from './modules/products/products.module';
 import { CartModule } from './modules/cart/cart.module';
 import { OrderModule } from './modules/order/order.module';
+import { ReportModule } from './modules/report/report.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { OrderModule } from './modules/order/order.module';
     ProductsModule,
     CartModule,
     OrderModule,
+    ReportModule,
   ],
   providers: [
     {
