@@ -37,7 +37,7 @@ export class CreateUserDTO {
   type!: UserType;
 
   @ApiPropertyOptional()
-  @ValidateIf((obj: CreateUserDTO) => obj.type === UserType.CLIENT)
+  @ValidateIf((obj: CreateUserDTO) => obj.type === UserType.CUSTOMER)
   @IsNotEmpty()
   @IsString()
   @Matches(/^\(?\d{2}\)?\s?\d{5}-?\d{4}$/, {
@@ -46,7 +46,7 @@ export class CreateUserDTO {
   contact?: string;
 
   @ApiPropertyOptional()
-  @ValidateIf((obj: CreateUserDTO) => obj.type === UserType.CLIENT)
+  @ValidateIf((obj: CreateUserDTO) => obj.type === UserType.CUSTOMER)
   @IsNotEmpty()
   @IsString()
   address?: string;

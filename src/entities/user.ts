@@ -7,9 +7,9 @@ import {
   OneToMany,
 } from 'typeorm';
 import { DefaultEntity } from './default-entity';
-import { UserType } from '@enums/user-type';
-import { Client } from './client';
+import { Customer } from './customer';
 import { Order } from './order';
+import { UserType } from '@enums/user-type';
 
 @Entity('users')
 export class User extends DefaultEntity {
@@ -32,11 +32,11 @@ export class User extends DefaultEntity {
   @Column({ default: true })
   is_active!: boolean;
 
-  @OneToOne(() => Client, (client) => client.user, {
+  @OneToOne(() => Customer, (customer) => customer.user, {
     nullable: true,
     cascade: true,
   })
-  client?: Client;
+  customer?: Customer;
 
   @OneToMany(() => Order, (order) => order.user)
   orders!: Order[];

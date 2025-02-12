@@ -93,20 +93,20 @@ describe('AuthService', () => {
     });
 
     it('Deve gerar um código quando o email e senha forem válidos', async () => {
-      const existingClient = {
+      const existingCustomer = {
         id: '123',
-        name: 'Cliente Teste',
-        email: 'cliente@example.com',
-        type: UserType.CLIENT,
-        client: { contact: 'antigo', address: 'antigo' },
+        name: 'Customere Teste',
+        email: 'customere@example.com',
+        type: UserType.CUSTOMER,
+        customer: { contact: 'antigo', address: 'antigo' },
       } as User;
 
       const loginDto: LoginDTO = {
-        email: 'cliente@example.com',
+        email: 'customere@example.com',
         password: 'password123',
       };
 
-      mockUserRepository.findOne.mockResolvedValue(existingClient);
+      mockUserRepository.findOne.mockResolvedValue(existingCustomer);
       mockPasswordService.comparePasswords.mockResolvedValue(true);
       jest.spyOn(service as any, 'generateAuthCode').mockReturnValue('123456');
 

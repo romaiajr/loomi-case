@@ -74,7 +74,7 @@ export class ProductsController {
     description: 'Filtra produtos com preço maior que o valor especificado',
   })
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(UserType.ADMIN, UserType.CLIENT)
+  @Roles(UserType.ADMIN, UserType.CUSTOMER)
   @Get()
   async findAll(
     @Res() res: Response,
@@ -96,7 +96,7 @@ export class ProductsController {
   @ApiResponse({ type: ProductDTO })
   @ApiParam({ name: 'id', type: 'uuid', description: 'ID do produto' })
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(UserType.ADMIN, UserType.CLIENT)
+  @Roles(UserType.ADMIN, UserType.CUSTOMER)
   @Get(':id')
   async findOne(@Res() res: Response, @Param('id') productId: string) {
     const product: ProductDTO = await this.productsService.findOne(productId);

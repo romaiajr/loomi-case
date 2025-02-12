@@ -17,7 +17,7 @@ services:
       DATABASE_PWD: default
       DATABASE_NAME: loommerce
       JWT_SECRET: SenhaSecreta
-    # command: sh -c "npm run populate-db && npm run start"
+    command: sh -c "npm run populate-db && npm run start"
 
   postgres:
     image: postgres:15

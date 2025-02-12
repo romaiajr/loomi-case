@@ -11,6 +11,6 @@ export class UserDTO {
   @ApiProperty({ example: 'romaiajr.dev@gmail.com' })
   email: string;
 
-  @ApiProperty({ example: UserType.CLIENT })
+  @ApiProperty({ example: UserType.CUSTOMER })
   type: UserType;
 }

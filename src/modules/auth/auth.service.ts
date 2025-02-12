@@ -50,6 +50,16 @@ export class AuthService {
       throw new NotAcceptableException('Credenciais inválidas.');
     }
 
+    const existentCode = await this.authCodeRepository.findOne({
+      where: {
+        email: auth.email,
+      },
+    });
+
+    if (existentCode) {
+      await this.authCodeRepository.delete({ email });
+    }
+
     const code = this.generateAuthCode();
     await this.authCodeRepository.save({ email: email, code });
     // O ideal seria utilizar um sistema de envio de e-mails, mas neste caso optei por simular a validação apenas.

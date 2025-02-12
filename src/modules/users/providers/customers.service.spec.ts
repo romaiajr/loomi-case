@@ -1,14 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UsersService } from './users.service';
+import { UsersService } from './customers.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from '@entities/user';
-import { Client } from '@entities/client';
+import { Customer } from '@entities/customer';
 import { Repository, DataSource } from 'typeorm';
 import { PasswordsService } from './password.service';
 import { CreateUserDTO } from '../model/request/create-user.dto';
 import { UserType } from '@enums/user-type';
 import { UserDTO } from '../model/response/user.dto';
-import { ClientDTO } from '../model/response/client.dto';
+import { CustomerDTO } from '../model/response/customer.dto';
 import { UpdateUserDTO } from '../model/request/update-user.dto';
 import { UserPaginationResponse } from '../model/response/user-pagination';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
@@ -21,7 +21,7 @@ const mockUserRepository = {
   find: jest.fn(),
   count: jest.fn(),
 };
-const mockClientRepository = {
+const mockCustomerRepository = {
   save: jest.fn(),
 };
 const mockPasswordService = {
@@ -48,7 +48,7 @@ const mockDataSource = {
 describe('UsersService', () => {
   let service: UsersService;
   let userRepository: Repository<User>;
-  let clientRepository: Repository<Client>;
+  let customerRepository: Repository<Customer>;
   let passwordService: PasswordsService;
 
   beforeEach(async () => {
@@ -56,7 +56,10 @@ describe('UsersService', () => {
       providers: [
         UsersService,
         { provide: getRepositoryToken(User), useValue: mockUserRepository },
-        { provide: getRepositoryToken(Client), useValue: mockClientRepository },
+        {
+          provide: getRepositoryToken(Customer),
+          useValue: mockCustomerRepository,
+        },
         { provide: PasswordsService, useValue: mockPasswordService },
         { provide: DataSource, useValue: mockDataSource },
       ],
@@ -64,7 +67,7 @@ describe('UsersService', () => {
 
     service = module.get<UsersService>(UsersService);
     userRepository = module.get(getRepositoryToken(User));
-    clientRepository = module.get(getRepositoryToken(Client));
+    customerRepository = module.get(getRepositoryToken(Customer));
     passwordService = module.get(PasswordsService);
   });
 
@@ -96,12 +99,12 @@ describe('UsersService', () => {
       );
     });
 
-    it('Deve criar um usuário CLIENT corretamente', async () => {
+    it('Deve criar um usuário CUSTOMER corretamente', async () => {
       const userDto: CreateUserDTO = {
-        name: 'Cliente Teste',
-        email: 'cliente@example.com',
+        name: 'Customere Teste',
+        email: 'customere@example.com',
         password: 'password123',
-        type: UserType.CLIENT,
+        type: UserType.CUSTOMER,
         contact: '(11) 99999-9999',
         address: 'Rua X, 123',
       };
@@ -116,16 +119,16 @@ describe('UsersService', () => {
         .fn()
         .mockResolvedValue({ ...userDto, id: '456' } as User);
 
-      clientRepository.save = jest.fn().mockResolvedValue({
+      customerRepository.save = jest.fn().mockResolvedValue({
         id: '789',
         contact: userDto.contact,
         address: userDto.address,
         user: { id: '456' },
-      } as Client);
+      } as Customer);
 
       const result = await service.create(userDto);
 
-      expect(result).toBeInstanceOf(ClientDTO);
+      expect(result).toBeInstanceOf(CustomerDTO);
       expect(result).toEqual(
         expect.objectContaining({ id: '456', contact: userDto.contact }),
       );
@@ -179,35 +182,35 @@ describe('UsersService', () => {
       expect(mockQueryRunner.manager.save).toHaveBeenCalled();
     });
 
-    it('Deve atualizar um cliente', async () => {
+    it('Deve atualizar um customere', async () => {
       const updateDto: UpdateUserDTO = {
-        name: 'Cliente Teste',
-        email: 'cliente@example.com',
+        name: 'Customere Teste',
+        email: 'customere@example.com',
         contact: '(11) 99999-9999',
         address: 'Rua Y, 123',
       };
-      const existingClient = {
+      const existingCustomer = {
         id: '123',
-        name: 'Cliente Teste',
-        email: 'cliente@example.com',
-        type: UserType.CLIENT,
-        client: { contact: 'antigo', address: 'antigo' },
+        name: 'Customere Teste',
+        email: 'customere@example.com',
+        type: UserType.CUSTOMER,
+        customer: { contact: 'antigo', address: 'antigo' },
       } as User;
 
       userRepository.findOne = jest
         .fn()
         .mockResolvedValueOnce(undefined)
-        .mockResolvedValue(existingClient);
+        .mockResolvedValue(existingCustomer);
       mockQueryRunner.manager.save = jest
         .fn()
-        .mockResolvedValue({ ...existingClient.client, ...updateDto });
+        .mockResolvedValue({ ...existingCustomer.customer, ...updateDto });
 
-      const result: ClientDTO = (await service.update(
+      const result: CustomerDTO = (await service.update(
         '123',
         updateDto,
-      )) as ClientDTO;
+      )) as CustomerDTO;
 
-      expect(result).toBeInstanceOf(ClientDTO);
+      expect(result).toBeInstanceOf(CustomerDTO);
       expect(result.contact).toBe(updateDto.contact);
       expect(result.address).toBe(updateDto.address);
       expect(mockQueryRunner.manager.save).toHaveBeenCalled();
@@ -232,7 +235,7 @@ describe('UsersService', () => {
   });
 
   describe('findAll', () => {
-    it('deve retornar usuários paginados com clients e admins separados', async () => {
+    it('deve retornar usuários paginados com customers e admins separados', async () => {
       const page = 1;
       const records = 2;
 
@@ -242,28 +245,28 @@ describe('UsersService', () => {
           name: 'Admin 1',
           email: 'admin1@example.com',
           type: UserType.ADMIN,
-          client: null,
+          customer: null,
         },
         {
           id: '2',
-          name: 'Cliente 1',
-          email: 'cliente1@example.com',
-          type: UserType.CLIENT,
-          client: { contact: '12345', address: 'Rua A' },
+          name: 'Customere 1',
+          email: 'customere1@example.com',
+          type: UserType.CUSTOMER,
+          customer: { contact: '12345', address: 'Rua A' },
         },
         {
           id: '3',
           name: 'Admin 2',
           email: 'admin2@example.com',
           type: UserType.ADMIN,
-          client: null,
+          customer: null,
         },
         {
           id: '4',
-          name: 'Cliente 2',
-          email: 'cliente2@example.com',
-          type: UserType.CLIENT,
-          client: { contact: '67890', address: 'Rua B' },
+          name: 'Customere 2',
+          email: 'customere2@example.com',
+          type: UserType.CUSTOMER,
+          customer: { contact: '67890', address: 'Rua B' },
         },
       ];
 
@@ -274,7 +277,7 @@ describe('UsersService', () => {
 
       const result = await service.findAll(page, records);
 
-      expect(result.items.clients).toHaveLength(1);
+      expect(result.items.customers).toHaveLength(1);
       expect(result.items.admins).toHaveLength(1);
       expect(result.total).toBe(users.length);
       expect(result.page).toBe(page);
@@ -293,28 +296,28 @@ describe('UsersService', () => {
           name: 'Admin 1',
           email: 'admin1@example.com',
           type: UserType.ADMIN,
-          client: null,
+          customer: null,
         },
         {
           id: '2',
-          name: 'Cliente 1',
-          email: 'cliente1@example.com',
-          type: UserType.CLIENT,
-          client: { contact: '12345', address: 'Rua A' },
+          name: 'Customere 1',
+          email: 'customere1@example.com',
+          type: UserType.CUSTOMER,
+          customer: { contact: '12345', address: 'Rua A' },
         },
         {
           id: '3',
           name: 'Admin 2',
           email: 'admin2@example.com',
           type: UserType.ADMIN,
-          client: null,
+          customer: null,
         },
         {
           id: '4',
-          name: 'Cliente 2',
-          email: 'cliente2@example.com',
-          type: UserType.CLIENT,
-          client: { contact: '67890', address: 'Rua B' },
+          name: 'Customere 2',
+          email: 'customere2@example.com',
+          type: UserType.CUSTOMER,
+          customer: { contact: '67890', address: 'Rua B' },
         },
       ];
 
@@ -332,7 +335,7 @@ describe('UsersService', () => {
 
       const result = await service.findAll(1, 10);
 
-      expect(result.items.clients).toHaveLength(0);
+      expect(result.items.customers).toHaveLength(0);
       expect(result.items.admins).toHaveLength(0);
       expect(result.total).toBe(0);
       expect(result.lastElement).toBe(true);

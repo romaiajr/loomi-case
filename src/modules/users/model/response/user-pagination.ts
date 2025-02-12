@@ -1,12 +1,12 @@
 import { PaginationResponse } from '@interfaces/pagination-response';
 import { UserDTO } from './user.dto';
-import { ClientDTO } from './client.dto';
+import { CustomerDTO } from './customer.dto';
 
 export class UserPaginationResponse
-  implements PaginationResponse<{ clients: ClientDTO[]; admins: UserDTO[] }>
+  implements PaginationResponse<{ customers: CustomerDTO[]; admins: UserDTO[] }>
 {
   items: {
-    clients: ClientDTO[];
+    customers: CustomerDTO[];
     admins: UserDTO[];
   };
   page: number;
@@ -15,7 +15,7 @@ export class UserPaginationResponse
   lastElement: boolean;
 
   constructor(
-    items: { clients: ClientDTO[]; admins: UserDTO[] },
+    items: { customers: CustomerDTO[]; admins: UserDTO[] },
     page: number,
     records: number,
     total: number,
