@@ -1,99 +1,119 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+# MMORPG Marketplace - Backend
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+This is the backend for the **Loommerce** project, built with **NestJS** and configured to work with **PostgreSQL**.
 
-## Description
+## How to Run the Project
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+### Using Docker
 
-## Project setup
+1. Make sure you have **Docker** and **Docker Compose** installed on your system.
+2. Run the following commands to build and start the containers:
 
-```bash
-$ npm install
-```
+   Install project dependencies:
 
-## Compile and run the project
+   ```bash
+   npm install
+   ```
 
-```bash
-# development
-$ npm run start
+   ```bash
+   docker-compose up --build or npm run start:docker
+   ```
 
-# watch mode
-$ npm run start:dev
+3. Once running, the following services will be available:
 
-# production mode
-$ npm run start:prod
-```
+- **Backend**: [http://localhost:3000](http://localhost:3000)
+- **pgAdmin** (PostgreSQL management interface): [http://localhost:5050](http://localhost:5050)
 
-## Run tests
+### **pgAdmin Login & Database Connection**
 
-```bash
-# unit tests
-$ npm run test
+To access **pgAdmin**, use the following credentials:
 
-# e2e tests
-$ npm run test:e2e
+- **Email:** `admin@admin.com`
+- **Password:** `admin`
 
-# test coverage
-$ npm run test:cov
-```
+After logging in, follow these steps to connect to the database:
 
-## Deployment
+1. Create a **New Connection**.
+2. **Host:** Use the database container's IP address.
+3. **Username:** `postgres`
+4. **Password:** `default`
+5. **Port** `5433`
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+4. The default PostgreSQL credentials (configured in `docker-compose.yml`) are:
+   - **Username**: `postgres`
+   - **Password**: `default`
+   - **Database**: `loommerce`
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+> Note: The database configuration is automatically handled when using Docker.
 
-```bash
-$ npm install -g mau
-$ mau deploy
-```
+### Running Manually
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+If you prefer to run the project manually, follow these steps:
 
-## Resources
+1. **Install Dependencies**:
+   Ensure you have **Node.js** and **PostgreSQL** installed.
 
-Check out a few resources that may come in handy when working with NestJS:
+   Install project dependencies:
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+   ```bash
+   npm install
+   ```
 
-## Support
+2. **Set Up the Database**:
+   Create a PostgreSQL database with the following configuration:
+   - **Database Name**: `loommerce`
+   - **Username**: `postgres`
+   - **Password**: `postgres`
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+3. **Set Environment Variables**:
+   Create a `.env` file in the root of the project with the following content:
 
-## Stay in touch
+   ```env
+   PORT=3000
+   DATABASE_NAME=loomerce
+   DATABASE_HOST=localhost
+   DATABASE_USER=postgres
+   DATABASE_PWD=default
+   DATABASE_PORT=5432
+   JWT_SECRET=SenhaSecreta
+   ```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+4. **Build and Populate the Database**:
+   Build the project:
 
-## License
+   ```bash
+   npm run build
+   ```
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+   Populate the database:
+
+   ```bash
+   npm run populate-db
+   ```
+
+5. **Start the Server**:
+   Run the server:
+
+   ```bash
+   npm run start
+   ```
+
+6. **Access the Backend**:
+   The server will be available at [http://localhost:3000](http://localhost:3000).
+
+## Environment Variables
+
+The project uses the following environment variables for configuration:
+
+| Variable         | Description                               | Default Value          |
+|------------------|-------------------------------------------|------------------------|
+| `PORT`           | The port the server will run on          | `3000`                |
+| `DATABASE_NAME`  | Name of the PostgreSQL database          | `loomerce`  |
+| `DATABASE_HOST`  | Host of the PostgreSQL database          | `localhost`           |
+| `DATABASE_USER`  | Username for the PostgreSQL database     | `postgres`            |
+| `DATABASE_PWD`   | Password for the PostgreSQL database     | `postgres`             |
+| `DATABASE_PORT`  | Port of the PostgreSQL database          | `5432`                |
+| `JWT_SECRET`     | Jwt Key used to encrypt users sensitive Data   | `5432`                |
+
+> Note: Ensure the PostgreSQL is properly configured and that the `.env` file is in place before starting the project manually.
