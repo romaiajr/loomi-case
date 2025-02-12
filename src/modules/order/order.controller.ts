@@ -30,7 +30,7 @@ export class OrderController {
 
   @ApiResponse({ type: OrderDTO })
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(UserType.CLIENT, UserType.ADMIN)
+  @Roles(UserType.CUSTOMER, UserType.ADMIN)
   @Post()
   async createOrder(@Res() res: Response, @Req() req: RequestWithUser) {
     const userId: string = req.user.sub;
@@ -52,7 +52,7 @@ export class OrderController {
     description: 'Quantidade de registros por página (default: 5)',
   })
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(UserType.CLIENT, UserType.ADMIN)
+  @Roles(UserType.CUSTOMER, UserType.ADMIN)
   @Get()
   async getOrders(
     @Res() res: Response,
@@ -72,7 +72,7 @@ export class OrderController {
   @ApiResponse({ type: OrderDTO })
   @ApiParam({ name: 'id', type: 'uuid', description: 'ID do Pedido' })
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(UserType.CLIENT, UserType.ADMIN)
+  @Roles(UserType.CUSTOMER, UserType.ADMIN)
   @Get(':id')
   async getOrder(
     @Res() res: Response,
@@ -101,7 +101,7 @@ export class OrderController {
 
   @ApiResponse({ type: OrderDTO })
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(UserType.ADMIN, UserType.CLIENT)
+  @Roles(UserType.ADMIN, UserType.CUSTOMER)
   @Post('/payment')
   async payOrder(
     @Res() res: Response,

@@ -30,7 +30,7 @@ export class CartController {
 
   @ApiResponse({ type: CartDTO })
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(UserType.CLIENT, UserType.ADMIN)
+  @Roles(UserType.CUSTOMER, UserType.ADMIN)
   @Get()
   async getCart(@Res() res: Response, @Req() req: RequestWithUser) {
     const userId: string = req.user.sub;
@@ -50,7 +50,7 @@ export class CartController {
 
   @ApiResponse({ type: CartDTO })
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(UserType.CLIENT, UserType.ADMIN)
+  @Roles(UserType.CUSTOMER, UserType.ADMIN)
   @Post('items')
   async addItemToCart(
     @Body() createCart: AddItemToCartDTO,
@@ -67,7 +67,7 @@ export class CartController {
 
   @ApiResponse({ type: CartDTO })
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(UserType.CLIENT, UserType.ADMIN)
+  @Roles(UserType.CUSTOMER, UserType.ADMIN)
   @Patch('items')
   async updateCartItem(
     @Body() updateCart: UpdateCartDTO,

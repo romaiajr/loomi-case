@@ -4,14 +4,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Client } from '@entities/client';
+import { Customer } from '@entities/customer';
 import { User } from '@entities/user';
 import { DataSource, Not, Repository } from 'typeorm';
 import { PasswordsService } from './password.service';
 import { CreateUserDTO } from '../model/request/create-user.dto';
 import { UserDTO } from '../model/response/user.dto';
 import { UserType } from '@enums/user-type';
-import { ClientDTO } from '../model/response/client.dto';
+import { CustomerDTO } from '../model/response/customer.dto';
 import { UpdateUserDTO } from '../model/request/update-user.dto';
 import { runInTransaction } from '@utils/run-in-transaction';
 import { UserPaginationResponse } from '../model/response/user-pagination';
@@ -25,19 +25,19 @@ export class UsersService {
     private dataSource: DataSource,
   ) {}
 
-  toDTO(user: User): UserDTO | ClientDTO {
+  toDTO(user: User): UserDTO | CustomerDTO {
     const userDto = new UserDTO();
     userDto.id = user.id;
     userDto.name = user.name;
     userDto.email = user.email;
     userDto.type = user.type;
 
-    if (user.client) {
-      const clientDto = new ClientDTO();
-      Object.assign(clientDto, userDto);
-      clientDto.contact = user.client.contact;
-      clientDto.address = user.client.address;
-      return clientDto;
+    if (user.customer) {
+      const customerDto = new CustomerDTO();
+      Object.assign(customerDto, userDto);
+      customerDto.contact = user.customer.contact;
+      customerDto.address = user.customer.address;
+      return customerDto;
     }
 
     return userDto;
@@ -57,23 +57,23 @@ export class UsersService {
     }
   }
 
-  async create(user: CreateUserDTO): Promise<UserDTO | ClientDTO> {
+  async create(user: CreateUserDTO): Promise<UserDTO | CustomerDTO> {
     return runInTransaction(this.dataSource, async (manager) => {
       await this.validateEmail(user.email);
       user.password = await this.passwordService.hashPassword(user.password);
       const createdUser = manager.create(User, user);
       const savedUser = await manager.save(User, createdUser);
-      if (user.type === UserType.CLIENT) {
-        const clientData: { address?: string; contact?: string } = {
+      if (user.type === UserType.CUSTOMER) {
+        const customerData: { address?: string; contact?: string } = {
           address: user.address,
           contact: user.contact,
         };
-        const createdClient = manager.create(Client, {
+        const createdCustomer = manager.create(Customer, {
           user: createdUser,
-          ...clientData,
+          ...customerData,
         });
-        const savedClient = await manager.save(Client, createdClient);
-        savedUser.client = savedClient;
+        const savedCustomer = await manager.save(Customer, createdCustomer);
+        savedUser.customer = savedCustomer;
       }
       return this.toDTO(savedUser);
     });
@@ -86,22 +86,22 @@ export class UsersService {
     const skip: number = page ? (page - 1) * records : 0;
     const take: number = records ? records : 10;
     const users = await this.usersRepository.find({
-      relations: ['client'],
+      relations: ['customer'],
       skip,
       take,
     });
-    const clients: ClientDTO[] = [];
+    const customers: CustomerDTO[] = [];
     const admins: UserDTO[] = [];
 
     users.forEach((user) => {
-      if (user.client) {
-        clients.push(this.toDTO(user) as ClientDTO);
+      if (user.customer) {
+        customers.push(this.toDTO(user) as CustomerDTO);
       } else admins.push(this.toDTO(user) as UserDTO);
     });
     const totalCount = await this.usersRepository.count();
 
     return new UserPaginationResponse(
-      { clients, admins },
+      { customers, admins },
       page,
       records,
       totalCount,
@@ -112,7 +112,7 @@ export class UsersService {
   async findOneUser(id: string): Promise<User> {
     const user = await this.usersRepository.findOne({
       where: { id },
-      relations: ['client'],
+      relations: ['customer'],
     });
     if (!user) {
       throw new NotFoundException('Usuário não encontrado');
@@ -120,7 +120,7 @@ export class UsersService {
     return user;
   }
 
-  async findOne(id: string): Promise<UserDTO | ClientDTO> {
+  async findOne(id: string): Promise<UserDTO | CustomerDTO> {
     const user = await this.findOneUser(id);
     return this.toDTO(user);
   }
@@ -137,14 +137,17 @@ export class UsersService {
   async update(
     userId: string,
     updateData: UpdateUserDTO,
-  ): Promise<UserDTO | ClientDTO> {
+  ): Promise<UserDTO | CustomerDTO> {
     return runInTransaction(this.dataSource, async (manager) => {
       await this.validateEmail(updateData.email, userId);
       const user = await this.findOneUser(userId);
       Object.assign(user, updateData);
-      if (user.client && ('contact' in updateData || 'address' in updateData)) {
-        Object.assign(user.client, updateData);
-        await manager.save(Client, user.client);
+      if (
+        user.customer &&
+        ('contact' in updateData || 'address' in updateData)
+      ) {
+        Object.assign(user.customer, updateData);
+        await manager.save(Customer, user.customer);
       }
       await manager.save(User, user);
       return this.toDTO(user);

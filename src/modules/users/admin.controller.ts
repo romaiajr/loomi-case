@@ -11,10 +11,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { UsersService } from './providers/users.service';
+import { UsersService } from './providers/customers.service';
 import { UserDTO } from './model/response/user.dto';
 import { Response } from 'express';
-import { ClientDTO } from './model/response/client.dto';
+import { CustomerDTO } from './model/response/customer.dto';
 import { UpdateUserDTO } from './model/request/update-user.dto';
 import { UserPaginationResponse } from './model/response/user-pagination';
 import { Roles } from '@decorators/roles.decorator';
@@ -61,7 +61,7 @@ export class AdminsController {
   @Roles(UserType.ADMIN)
   @Get(':id')
   async findOne(@Res() res: Response, @Param('id') userId: string) {
-    const user: UserDTO | ClientDTO = await this.usersService.findOne(userId);
+    const user: UserDTO | CustomerDTO = await this.usersService.findOne(userId);
     return res.status(HttpStatus.OK).send(user);
   }
 
@@ -75,7 +75,7 @@ export class AdminsController {
     @Res() res: Response,
     @Param('id') userId: string,
   ) {
-    const updatedUser: UserDTO | ClientDTO = await this.usersService.update(
+    const updatedUser: UserDTO | CustomerDTO = await this.usersService.update(
       userId,
       updateUserData,
     );

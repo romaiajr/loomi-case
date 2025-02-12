@@ -11,11 +11,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
-import { UsersService } from './providers/users.service';
+import { UsersService } from './providers/customers.service';
 import { UserDTO } from './model/response/user.dto';
 import { CreateUserDTO } from './model/request/create-user.dto';
 import { Response } from 'express';
-import { ClientDTO } from './model/response/client.dto';
+import { CustomerDTO } from './model/response/customer.dto';
 import { UpdateUserDTO } from './model/request/update-user.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { Public } from '@decorators/public.decorator';
@@ -26,11 +26,11 @@ import { RequestWithUser } from '@interfaces/request-with-user';
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
-  @ApiResponse({ type: UserDTO || ClientDTO })
+  @ApiResponse({ type: UserDTO || CustomerDTO })
   @Public()
   @Post()
   async create(@Body() createUserData: CreateUserDTO, @Res() res: Response) {
-    const user: UserDTO | ClientDTO =
+    const user: UserDTO | CustomerDTO =
       await this.usersService.create(createUserData);
     return res.status(HttpStatus.CREATED).send(user);
   }
@@ -40,7 +40,7 @@ export class UsersController {
   @Get()
   async find(@Res() res: Response, @Req() req: RequestWithUser) {
     const userId: string = req.user.sub;
-    const user: UserDTO | ClientDTO = await this.usersService.findOne(userId);
+    const user: UserDTO | CustomerDTO = await this.usersService.findOne(userId);
     return res.status(HttpStatus.OK).send(user);
   }
 
@@ -53,7 +53,7 @@ export class UsersController {
     @Req() req: RequestWithUser,
   ) {
     const userId: string = req.user.sub;
-    const updatedUser: UserDTO | ClientDTO = await this.usersService.update(
+    const updatedUser: UserDTO | CustomerDTO = await this.usersService.update(
       userId,
       updateUserData,
     );

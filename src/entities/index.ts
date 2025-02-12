@@ -1,7 +1,7 @@
 import { AuthCode } from './auth-code';
 import { Cart } from './cart';
 import { CartItem } from './cart-item';
-import { Client } from './client';
+import { Customer } from './customer';
 import { Order } from './order';
 import { OrderItem } from './order-item';
 import { Product } from './product';
@@ -10,7 +10,7 @@ import { User } from './user';
 
 export default [
   User,
-  Client,
+  Customer,
   AuthCode,
   Product,
   Order,

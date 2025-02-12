@@ -8,15 +8,37 @@ This is the backend for the **Loommerce** project, built with **NestJS** and con
 ### Using Docker
 
 1. Make sure you have **Docker** and **Docker Compose** installed on your system.
-2. Run the following command to build and start the containers:
+2. Run the following commands to build and start the containers:
+
+   Install project dependencies:
+
+   ```bash
+   npm install
+   ```
 
    ```bash
    docker-compose up --build or npm run start:docker
    ```
 
 3. Once running, the following services will be available:
-   - **Backend**: [http://localhost:3500](http://localhost:3500)
-   - **pgAdmin** (PostgreSQL management interface): [http://localhost:5050](http://localhost:5050)
+
+- **Backend**: [http://localhost:3000](http://localhost:3000)
+- **pgAdmin** (PostgreSQL management interface): [http://localhost:5050](http://localhost:5050)
+
+### **pgAdmin Login & Database Connection**
+
+To access **pgAdmin**, use the following credentials:
+
+- **Email:** `admin@admin.com`
+- **Password:** `admin`
+
+After logging in, follow these steps to connect to the database:
+
+1. Create a **New Connection**.
+2. **Host:** Use the database container's IP address.
+3. **Username:** `postgres`
+4. **Password:** `default`
+5. **Port** `5433`
 
 4. The default PostgreSQL credentials (configured in `docker-compose.yml`) are:
    - **Username**: `postgres`
@@ -48,7 +70,7 @@ If you prefer to run the project manually, follow these steps:
    Create a `.env` file in the root of the project with the following content:
 
    ```env
-   PORT=3500
+   PORT=3000
    DATABASE_NAME=loomerce
    DATABASE_HOST=localhost
    DATABASE_USER=postgres
@@ -64,11 +86,11 @@ If you prefer to run the project manually, follow these steps:
    npm run build
    ```
 
-   <!-- Populate the database:
+   Populate the database:
 
    ```bash
    npm run populate-db
-   ``` -->
+   ```
 
 5. **Start the Server**:
    Run the server:
@@ -78,7 +100,7 @@ If you prefer to run the project manually, follow these steps:
    ```
 
 6. **Access the Backend**:
-   The server will be available at [http://localhost:3500](http://localhost:3500).
+   The server will be available at [http://localhost:3000](http://localhost:3000).
 
 ## Environment Variables
 
@@ -86,7 +108,7 @@ The project uses the following environment variables for configuration:
 
 | Variable         | Description                               | Default Value          |
 |------------------|-------------------------------------------|------------------------|
-| `PORT`           | The port the server will run on          | `3500`                |
+| `PORT`           | The port the server will run on          | `3000`                |
 | `DATABASE_NAME`  | Name of the PostgreSQL database          | `loomerce`  |
 | `DATABASE_HOST`  | Host of the PostgreSQL database          | `localhost`           |
 | `DATABASE_USER`  | Username for the PostgreSQL database     | `postgres`            |
